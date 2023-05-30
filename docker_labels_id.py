@@ -2,7 +2,7 @@ import docker
 import sys
 
 def print_container_labels(container_id):
-    client = docker.DockerClient(base_url='tcp://infra-01.slick.ge:2375')
+    client = docker.from_env()
     try:
         container = client.containers.get(container_id)
         labels = container.labels

@@ -1,7 +1,7 @@
 import docker
 
 # create a Docker client instance
-client = docker.DockerClient(base_url='tcp://infra-01.slick.ge:2375')
+client = docker.from_env()
 
 # retrieve a list of all running containers
 containers = client.containers.list()

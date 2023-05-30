@@ -2,7 +2,7 @@ import docker
 import time
 
 def listen_for_new_containers():
-    client = docker.DockerClient(base_url='tcp://infra-01.slick.ge:2375')
+    client = docker.from_env()
     containers = client.containers.list()
 
     # Get the initial list of containers

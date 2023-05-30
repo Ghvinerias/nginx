@@ -1,7 +1,7 @@
 import docker
 
 def print_labels_starting_with_slick():
-    client = docker.DockerClient(base_url='tcp://infra-01.slick.ge:2375')
+    client = docker.from_env()
     containers = client.containers.list(all=True)
 
     for container in containers:

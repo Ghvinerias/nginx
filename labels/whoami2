@@ -1,0 +1,9 @@
+npm.domain_names=whoami2.test
+npm.forward_port=2002
+npm.ssl_forced=0
+npm.block_exploits=1
+npm.allow_websocket_upgrade=0
+npm.http2_support=0
+npm.forward_scheme=http
+npm.hsts_enabled=0
+npm.hsts_subdomains=0

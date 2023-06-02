@@ -11,6 +11,9 @@ def get_docker_host_ip():
     return docker_host_ip
 
 
+os.environ['NPM_SSL'] = "1"
+os.environ['NPM_HOST'] = "npmadmin.slick.ge"
+os.environ['NPM_PORT'] = "443"
 
 
 USER = os.environ['NPM_USER']

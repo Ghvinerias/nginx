@@ -1,10 +1,10 @@
-FROM python:3.12.0b1-bullseye
+FROM python:3.10-slim
 
 WORKDIR /usr/src/app
 
 COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir requirements.txt
 
-COPY ./scripts/new.py .
+COPY ./worker.py .
 
 CMD [ "python", "./worker.py" ]

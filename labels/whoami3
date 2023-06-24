@@ -1,5 +1,5 @@
-npm.domain_names=whoami1.test
-npm.forward_port=2001
+npm.domain_names=whoami3.test
+npm.forward_port=2003
 npm.ssl_forced=0
 npm.block_exploits=1
 npm.allow_websocket_upgrade=0

@@ -7,7 +7,6 @@ import subprocess
 
 # Create a Docker client
 client = docker.from_env()
-
 # Set the labels to monitor
 labels = [
     "npm.domain_names",
@@ -29,8 +28,6 @@ def get_docker_host_ip():
     return docker_host_ip
 
 
-os.environ['NPM_USER'] = "admin@slick.ge"
-os.environ['NPM_PSWD'] = "SLICK@dmin"
 os.environ['NPM_SSL'] = "1"
 os.environ['NPM_HOST'] = "npmadmin.slick.ge"
 os.environ['NPM_PORT'] = "443"

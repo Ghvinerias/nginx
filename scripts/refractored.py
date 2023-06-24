@@ -7,6 +7,13 @@ import subprocess
 
 # Create a Docker client
 client = docker.from_env()
+os.environ['NPM_USER'] = "admin@slick.ge"
+os.environ['NPM_PSWD'] = "SLICK@dmin"
+
+npmssl = os.environ.get('NPM_SSL', '1')
+npmhost = os.environ.get('NPM_HOST', 'npmadmin.slick.ge')
+npmport = os.environ.get('NPM_PORT', '443')
+
 
 # Set the labels to monitor
 labels = [
@@ -28,31 +35,15 @@ def get_docker_host_ip():
     docker_host_ip = output.decode().strip()
     return docker_host_ip
 
-
-os.environ['NPM_USER'] = "admin@slick.ge"
-os.environ['NPM_PSWD'] = "SLICK@dmin"
-os.environ['NPM_SSL'] = "1"
-os.environ['NPM_HOST'] = "npmadmin.slick.ge"
-os.environ['NPM_PORT'] = "443"
-
-
-USER = os.environ['NPM_USER']
-PSWD = os.environ['NPM_PSWD']
-npmssl = os.environ['NPM_SSL']
-npmhost = os.environ['NPM_HOST']
-npmport = os.environ['NPM_PORT']
-
-
-
 def get_bearer(conn):
-    payload = """{{
-          "identity": "{}",
-          "secret": "{}"
-    }}""".format(USER, PSWD)
-    headers = {
-      'Content-Type': 'application/json'
+    payload = {
+        "identity": os.environ['NPM_USER'],
+        "secret": os.environ['NPM_PSWD']
     }
-    conn.request("POST", "/api/tokens", payload, headers)
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    conn.request("POST", "/api/tokens", json.dumps(payload), headers)
     res = conn.getresponse()
     response_json = json.loads(res.read().decode("utf-8"))
     token = response_json["token"]
@@ -68,60 +59,45 @@ def get_hosts(conn, headers):
     return got_hosts
 
 def add_host(domain_names, forward_host, forward_port, ssl_forced, block_exploits, allow_websocket_upgrade, http2_support, forward_scheme, hsts_enabled, hsts_subdomains, conn, headers):
-    payload = """{{
-        "domain_names": [
-            "{}"
-        ],
-        "forward_host": "{}",
-        "forward_port": {},
+    payload = {
+        "domain_names": [domain_names],
+        "forward_host": forward_host,
+        "forward_port": forward_port,
         "access_list_id": 0,
         "certificate_id": 8,
-        "ssl_forced": {},
+        "ssl_forced": ssl_forced,
         "caching_enabled": 0,
-        "block_exploits": {},
+        "block_exploits": block_exploits,
         "advanced_config": "",
-        "meta": {{
-            "letsencrypt_agree": false,
-            "dns_challenge": false,
-            "nginx_online": true,
-            "nginx_err": null
-        }},
-        "allow_websocket_upgrade": {},
-        "http2_support": {},
-        "forward_scheme": "{}",
+        "meta": {
+            "letsencrypt_agree": False,
+            "dns_challenge": False,
+            "nginx_online": True,
+            "nginx_err": None
+        },
+        "allow_websocket_upgrade": allow_websocket_upgrade,
+        "http2_support": http2_support,
+        "forward_scheme": forward_scheme,
         "enabled": 1,
         "locations": [],
-        "hsts_enabled": {},
-        "hsts_subdomains": {}
-    }}""".format(domain_names, forward_host, forward_port, ssl_forced, block_exploits, allow_websocket_upgrade, http2_support, forward_scheme, hsts_enabled, hsts_subdomains)
+        "hsts_enabled": hsts_enabled,
+        "hsts_subdomains": hsts_subdomains
+    }
     
-    conn.request("POST", "/api/nginx/proxy-hosts", payload, headers)
+    conn.request("POST", "/api/nginx/proxy-hosts", json.dumps(payload), headers)
     res = conn.getresponse()
     data = res.read()
     response = data.decode("utf-8")
+    if "error" in json.loads(response):
+        if json.loads(response)["error"]["message"] == f"{domain_names} is already in use":
+            print(f"{domain_names} already exists")
+        else:
+            print("Something went wrong")
+    else:
+        print(f"Added configuration for {domain_names}")
+
     return response
 
-conn = None
-
-if npmssl == "1":
-    conn = http.client.HTTPSConnection(npmhost, npmport) # type: ignore
-else:
-    conn = http.client.HTTPConnection(npmhost, npmport) # type: ignore
-
-
-
-# Initialize variables for label values
-domain_names = None
-forward_port = None
-ssl_forced = None
-block_exploits = None
-allow_websocket_upgrade = None
-http2_support = None
-forward_scheme = None
-hsts_enabled = None
-hsts_subdomains = None
-
-# Function to report label values
 def report_labels(container):
     global domain_names, forward_port, ssl_forced, block_exploits, allow_websocket_upgrade
     global http2_support, forward_scheme, hsts_enabled, hsts_subdomains
@@ -146,6 +122,14 @@ def report_labels(container):
             print(f"{label}: {value}")
         else:
             print(f"{label}: Not set")
+
+conn = None
+
+
+if npmssl == "1":
+    conn = http.client.HTTPSConnection(npmhost, npmport) # type: ignore
+else:
+    conn = http.client.HTTPConnection(npmhost, npmport) # type: ignore
 
 # Get a list of existing container IDs
 existing_containers = set(container.id for container in client.containers.list())
@@ -172,5 +156,3 @@ while True:
 
     # Sleep for 1 second before checking again
     time.sleep(1)
-
-

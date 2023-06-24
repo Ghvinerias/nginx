@@ -11,6 +11,8 @@ def get_docker_host_ip():
     return docker_host_ip
 
 
+os.environ['NPM_USER'] = "admin@slick.ge"
+os.environ['NPM_PSWD'] = "SLICK@dmin"
 os.environ['NPM_SSL'] = "1"
 os.environ['NPM_HOST'] = "npmadmin.slick.ge"
 os.environ['NPM_PORT'] = "443"
@@ -92,8 +94,8 @@ else:
 
 
 
-domain_names = "whoami5.test"
-forward_port = 2005
+domain_names = "whoami8.test"
+forward_port = 2001
 ssl_forced = 0
 block_exploits = 1
 allow_websocket_upgrade = 0
@@ -106,6 +108,18 @@ hsts_subdomains = 0
 forward_host = get_docker_host_ip()
 headers = get_bearer(conn)
 response = add_host(domain_names, forward_host, forward_port, ssl_forced, block_exploits, allow_websocket_upgrade, http2_support, forward_scheme, hsts_enabled, hsts_subdomains, conn, headers)
-print(response)
+#print(response)
 
+
+
+
+
+# Check if the response contains the "error" key
+if "error" in json.loads(response):
+    if json.loads(response)["error"]["message"] == f"{domain_names} is already in use":
+        print(f"{domain_names} already exists")
+    else:
+        print("Something went wrong")
+else:
+    print(f"Added configuration for {domain_names}")
 

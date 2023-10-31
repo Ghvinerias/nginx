@@ -9,7 +9,7 @@ COPY . /app
 
 # Install the required packages
 
-RUN pip install --proxy http://squid-test.lb.ge:8080 -r requirements.txt
+RUN pip install -r wheelhouse/requirements.txt --no-index --find-links wheelhouse
 
 # Expose the port the Flask app runs on
 EXPOSE 5000

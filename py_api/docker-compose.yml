@@ -26,3 +26,19 @@ services:
         environment:
           MONGO_INITDB_ROOT_USERNAME: root
           MONGO_INITDB_ROOT_PASSWORD: example
+  api:
+    image: ghvinerias/py_api:1
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGODB_USERNAME=python
+      - MONGODB_PASSWORD=123
+      - MONGODB_HOST=mongo
+      - MONGODB_PORT=27017
+      - MONGODB_DATABASE_NAME=infra
+    volumes:
+      - ./app.py:/app/app.py
+  ubutnu:
+    image: ubuntu
+    entrypoint: ["bash"]
